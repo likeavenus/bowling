@@ -46,7 +46,6 @@ h1 {
 }
 
 .controls {
-  pointer-events: none;
   position: absolute;
   bottom: 16px;
   left: 50%;
@@ -148,4 +147,10 @@ h6 {
 p {
   margin: 0;
   /* display: inline-block; */
+}
+
+.modal {
+  position: absolute;
+  left: 20px;
+  top: 20px;
 }

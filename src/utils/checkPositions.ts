@@ -1,10 +1,9 @@
 import * as THREE from "three";
-import { IObjects } from "../types";
-
-
+import { IObjects, IGameState } from '../types';
 
 const droppedItems = new Set();
-export const checkPositions = (objects: IObjects[], isStrike: boolean) => {
+export const checkPositions = (objects: IObjects[], gameState: IGameState) => {
+
     const gameIsEnd = droppedItems.size === 10;
     if (!gameIsEnd) {
         for (const object of objects) {
@@ -15,9 +14,8 @@ export const checkPositions = (objects: IObjects[], isStrike: boolean) => {
                 droppedItems.add(object.mesh);
             }
             if (droppedItems.size === 10) {
-                isStrike = true;
+                gameState.isStrike = true;
             }
         }
     }
-
 }

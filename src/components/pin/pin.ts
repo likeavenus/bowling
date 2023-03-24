@@ -1,8 +1,9 @@
-import * as CANNON from 'cannon-es'
+import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 import { playHitSound } from './sounds';
+import { IObjects } from '../../types';
 
-export const getPin = (scene: THREE.Scene, world: CANNON.World) => {
+export const getPins = (scene: THREE.Scene, world: CANNON.World): IObjects[] => {
     const width = 0.095;
     const height = 0.5;
     const depth = 0.095;
@@ -12,10 +13,7 @@ export const getPin = (scene: THREE.Scene, world: CANNON.World) => {
     const shape = new CANNON.Box(new CANNON.Vec3(width * 0.5, height * 0.5, depth * 0.5));
 
     const pins = [1, 2, 3, 4];
-    const objectsToUpdate: {
-        mesh: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial>;
-        body: CANNON.Body;
-    }[] = [];
+    const objectsToUpdate: IObjects[] = [];
     const gap = 0.2;
     const count = 10;
     for (let i = 0; i < pins.length; i++) {
