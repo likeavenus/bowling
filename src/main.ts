@@ -5,16 +5,17 @@ import './style.css';
 import { getPlane } from './components/plane';
 import { getControls } from './components/controls';
 import { getSphere } from './components/sphere';
-import CannonDebugRenderer from './utils/cannonDebugRenderer';
-import { getPins } from './components/pin';
+// import CannonDebugRenderer from './utils/cannonDebugRenderer';
+import { Pins } from './components/pin';
 import { getWorld } from './components/world/world';
 import { addTouchListener } from './utils/touchListener';
 import { checkPositions } from './utils/checkPositions';
 import { getColor } from './utils/getProgressbarColor';
 import { state } from './gameConfig';
-import { IObjects, IGameState } from './types';
+import { IGameState } from './types';
 import { restart } from './utils/restart';
 import { applyImpulse } from './utils/applyImpulse';
+import { onSpaceKeyDown } from './utils/onSpaceKeyDown';
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const world = getWorld();
@@ -69,57 +70,64 @@ const strengthMesh = new THREE.Mesh(geometry, material);
 strengthMesh.position.set(1, 0, 3);
 scene.add(strengthMesh);
 
-const cannonDebugRenderer = new CannonDebugRenderer(scene, world)
+// const cannonDebugRenderer = new CannonDebugRenderer(scene, world)
 let oldElapsedTime = 0;
 
-let pinsToUpdate: IObjects[] = getPins(scene, world);
+const pins = new Pins();
+let pinsToUpdate = pins.generatePins(scene, world);
 const { body: sphereBody, mesh: sphereMesh } = getSphere(scene, world);
 
 let objectsToUpdate = [...pinsToUpdate, { body: sphereBody, mesh: sphereMesh }];
 scene.add(sphereMesh);
 
 
-let direction = 'up';
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' && !gameState.isStarted) {
-    if (gameState.power <= 0) {
-      direction = 'up';
-    }
-    if (gameState.power > 2001) {
-      direction = 'down';
-    }
-
-    if (direction === 'up') {
-      gameState.power += 100;
-    } else {
-      gameState.power -= 100;
-    }
+    onSpaceKeyDown(gameState);
   }
 
   if (sphereBody && gameState.isStarted) {
     if (e.code === 'ArrowLeft') {
-      // sphereBody.position.x -= 0.07;
       sphereBody.applyImpulse(new CANNON.Vec3(-3, 0, 0), sphereBody.position);
     }
 
     if (e.code === 'ArrowRight') {
-      // sphereBody.position.x += 0.07;
       sphereBody.applyImpulse(new CANNON.Vec3(3, 0, 0), sphereBody.position);
     }
   }
 });
 
+let RAF: number | null = null;
 const spaceBtn = document.querySelector('.control__space');
-// spaceBtn?.addEventListener('mousedown', () => {
-//   if (direction === 'up') {
-//     gameState.power += 100;
-//   } else {
-//     gameState.power -= 100;
-//   }
-// });
-// spaceBtn?.addEventListener('mouseup', () => {
-//   applyImpulse(gameState, sphereBody);
-// });
+const controlLeft = document.querySelector('.control__left');
+const controlRight = document.querySelector('.control__right');
+
+controlLeft?.addEventListener('click', () => {
+  if (sphereBody && gameState.isStarted) {
+    sphereBody.applyImpulse(new CANNON.Vec3(-3, 0, 0), sphereBody.position);
+  }
+})
+
+controlRight?.addEventListener('click', () => {
+  if (sphereBody && gameState.isStarted) {
+    sphereBody.applyImpulse(new CANNON.Vec3(3, 0, 0), sphereBody.position);
+  }
+})
+
+const onMouseDown = () => {
+  if (!gameState.isStarted) {
+    onSpaceKeyDown(gameState);
+    // TODO: замедлить
+    RAF = requestAnimationFrame(onMouseDown);
+  }
+};
+
+spaceBtn?.addEventListener('mousedown', onMouseDown);
+spaceBtn?.addEventListener('mouseup', () => {
+  applyImpulse(gameState, sphereBody);
+  cancelAnimationFrame(RAF as number);
+  (document.activeElement as HTMLButtonElement).blur();
+});
 
 
 window.addEventListener('keyup', (e) => {
@@ -130,27 +138,29 @@ window.addEventListener('keyup', (e) => {
 });
 
 
-const restartBtn = document.querySelector('.modal__content--restart') as HTMLButtonElement;
+const restartBtn = document.querySelector('.js-restart-btn') as HTMLButtonElement;
 restartBtn?.addEventListener('click', () => {
   restart(sphereBody);
   gameState.setInitialState();
+  pinsToUpdate = pins.generatePins(scene, world);
   objectsToUpdate = [...pinsToUpdate, { body: sphereBody, mesh: sphereMesh }];
   (document.activeElement as HTMLButtonElement).blur();
-  addTouchListener(sphereBody, gameState);
 });
 
 addTouchListener(sphereBody, gameState);
 
+const modal = document.querySelector('.modal');
+const winContent = document.querySelector('.modal__content--win');
 
 function animate() {
   const elapsedTime = clock.getElapsedTime();
   const deltaTime = elapsedTime - oldElapsedTime;
   oldElapsedTime = elapsedTime;
+  gameState.time = elapsedTime;
 
   world.step(1 / 60, deltaTime, 3);
   strengthMesh.scale.set(0.5, gameState.power * 0.06, 3);
   strengthMesh.material.color.set(new THREE.Color(getColor(gameState.power)));
-  console.log(gameState.isTouched);
 
   if (!gameState.isTouched) {
     camera.position.x = sphereBody.position.x;
@@ -164,7 +174,19 @@ function animate() {
       )
     );
   }
-  cannonDebugRenderer.update();
+  if (gameState.isStrike && !winContent?.classList.contains('active')) {
+    modal?.classList.add('modal--active');
+    winContent?.classList.add('active');
+    setTimeout(() => {
+      modal?.classList.remove('modal--active');
+      winContent?.classList.remove('active');
+      restart(sphereBody);
+      gameState.setInitialState();
+      pinsToUpdate = pins.generatePins(scene, world);
+      objectsToUpdate = [...pinsToUpdate, { body: sphereBody, mesh: sphereMesh }];
+    }, 4000);
+  }
+  // cannonDebugRenderer.update();
 
   for (const object of objectsToUpdate) {
     object.mesh.position.copy(object.body.position as unknown as THREE.Vector3)

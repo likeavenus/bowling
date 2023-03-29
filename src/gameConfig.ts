@@ -7,6 +7,7 @@ class State implements IGameState {
     isStrike: false;
     isTouched: false;
     roundsLimit: 2;
+    time: 0;
     constructor() {
         this.power = 0;
         this.isStarted = false;
@@ -14,11 +15,12 @@ class State implements IGameState {
         this.isStrike = false;
         this.isTouched = false;
         this.roundsLimit = 2;
+        this.time = 0;
         return new Proxy(this, {
             get(target, name: keyof IGameState) {
                 return target[name];
             },
-            set(target, name: keyof IGameState, receiver: number) {
+            set(target, name: keyof IGameState, receiver: never) {
                 if (name in target) {
                     target[name] = receiver;
                     return true;

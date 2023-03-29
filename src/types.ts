@@ -8,6 +8,7 @@ export interface IGameState {
     isStrike: boolean;
     isTouched: boolean;
     roundsLimit: number;
+    time: number;
     setInitialState(): ThisType<IGameState>;
 }
 

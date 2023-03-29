@@ -13,7 +13,7 @@ export const checkPositions = (objects: IObjects[], gameState: IGameState) => {
             if (object.mesh.material.color.r !== 1) {
                 droppedItems.add(object.mesh);
             }
-            if (droppedItems.size === 10) {
+            if (droppedItems.size === objects.length) {
                 gameState.isStrike = true;
             }
         }

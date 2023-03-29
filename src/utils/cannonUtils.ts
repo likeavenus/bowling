@@ -1,3 +1,4 @@
+// @ts-nocheck
 //MIT License
 //Copyright (c) 2020-2021 Sean Bradley
 import * as THREE from 'three'

@@ -14,19 +14,17 @@
     <section class="controls">
       <h4 class="controls__title">Controls</h2>
         <div class="controls__list">
-          <p class="control control__left">←: move left
-          <p class="control control__space">Space (hold down): hit
-          <p class="control control__right">→: move right
+          <button type="button" class="control control__left">←: move left
+            <button type="button" class="control control__space">Space (hold down): hit
+              <button type="button" class="control control__right">→: move right
         </div>
     </section>
     <div class="modal">
-      <div class="modal__content modal__content--restart">
-        <button type="button" class="modal__btn">Restart</button>
+      <div class="modal__content modal__content--win">
+        <h3 class="modal__title">Strike!</h3>
       </div>
-      <!-- <div class="modal__content modal__content--win">
-        <button type="button" class="modal__btn"></button>
-      </div> -->
     </div>
+    <button type="button" class="modal__btn js-restart-btn">Restart</button>
   </div>
   <script type="module" src="/src/main.ts"></script>
 </body>

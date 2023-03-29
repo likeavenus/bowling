@@ -5,14 +5,28 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vite + TS</title>
-  <script type="module" crossorigin src="/three-objects/assets/index-58ee2a28.js"></script>
-  <link rel="stylesheet" href="/three-objects/assets/index-59dcb310.css">
+  <title>Let's go bowling dude</title>
+  <script type="module" crossorigin src="/bowling/assets/index-4edd3ba7.js"></script>
+  <link rel="stylesheet" href="/bowling/assets/index-c914ff15.css">
 </head>
 
 <body>
   <div id="app">
     <canvas id="bg"></canvas>
+    <section class="controls">
+      <h4 class="controls__title">Controls</h2>
+        <div class="controls__list">
+          <button type="button" class="control control__left">←: move left
+            <button type="button" class="control control__space">Space (hold down): hit
+              <button type="button" class="control control__right">→: move right
+        </div>
+    </section>
+    <div class="modal">
+      <div class="modal__content modal__content--win">
+        <h3 class="modal__title">Strike!</h3>
+      </div>
+    </div>
+    <button type="button" class="modal__btn js-restart-btn">Restart</button>
   </div>
   
 </body>
