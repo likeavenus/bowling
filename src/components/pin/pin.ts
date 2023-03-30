@@ -4,7 +4,7 @@ import { playHitSound } from './sounds';
 import { IObjects } from '../../types';
 
 export class Pins {
-    public objectsToUpdate: IObjects[] = [];
+    public objectsToUpdate: IObjects<THREE.BoxGeometry>[] = [];
 
     private _prepareObjects(scene: THREE.Scene, world: CANNON.World): void {
         this.objectsToUpdate.forEach(({ body, mesh }) => {
@@ -15,7 +15,7 @@ export class Pins {
         this.objectsToUpdate = [];
     }
 
-    generatePins(scene: THREE.Scene, world: CANNON.World): IObjects[] {
+    generatePins(scene: THREE.Scene, world: CANNON.World): IObjects<THREE.BoxGeometry>[] {
         this._prepareObjects(scene, world);
         const width = 0.095;
         const height = 0.5;
@@ -33,6 +33,7 @@ export class Pins {
                 const boxMaterial = new THREE.MeshStandardMaterial({
                     metalness: 0.3,
                     roughness: 0.4,
+                    color: 'white'
                 });
                 const mesh = new THREE.Mesh(geometry, boxMaterial);
                 const body = new CANNON.Body({

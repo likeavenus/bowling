@@ -1,5 +1,6 @@
 import * as CANNON from 'cannon-es';
-
+import * as THREE from 'three';
+import { Sphere } from './components/sphere/sphere';
 
 export interface IGameState {
     power: number;
@@ -9,10 +10,13 @@ export interface IGameState {
     isTouched: boolean;
     roundsLimit: number;
     time: number;
-    setInitialState(): ThisType<IGameState>;
+    scene: THREE.Scene;
+    world: CANNON.World;
+    sphere: Sphere;
+    setInitialState(): IGameState;
 }
 
-export interface IObjects {
-    mesh: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial>;
+export interface IObjects<T extends THREE.BufferGeometry> {
+    mesh: THREE.Mesh<T, THREE.MeshStandardMaterial>;
     body: CANNON.Body;
 }

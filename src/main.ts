@@ -4,18 +4,18 @@ import * as CANNON from 'cannon-es';
 import './style.css';
 import { getPlane } from './components/plane';
 import { getControls } from './components/controls';
-import { getSphere } from './components/sphere';
 // import CannonDebugRenderer from './utils/cannonDebugRenderer';
 import { Pins } from './components/pin';
 import { getWorld } from './components/world/world';
 import { addTouchListener } from './utils/touchListener';
 import { checkPositions } from './utils/checkPositions';
 import { getColor } from './utils/getProgressbarColor';
-import { state } from './gameConfig';
+import { State } from './gameConfig';
 import { IGameState } from './types';
 import { restart } from './utils/restart';
 import { applyImpulse } from './utils/applyImpulse';
 import { onSpaceKeyDown } from './utils/onSpaceKeyDown';
+import { followCamera } from './utils/followCamera';
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const world = getWorld();
@@ -32,7 +32,7 @@ const renderer = new THREE.WebGLRenderer({
   antialias: true,
 });
 
-let gameState: IGameState = state;
+const gameState: IGameState = new State(scene, world);
 
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -75,7 +75,7 @@ let oldElapsedTime = 0;
 
 const pins = new Pins();
 let pinsToUpdate = pins.generatePins(scene, world);
-const { body: sphereBody, mesh: sphereMesh } = getSphere(scene, world);
+const { body: sphereBody, mesh: sphereMesh } = gameState.sphere.sphere;
 
 let objectsToUpdate = [...pinsToUpdate, { body: sphereBody, mesh: sphereMesh }];
 scene.add(sphereMesh);
@@ -102,7 +102,7 @@ const spaceBtn = document.querySelector('.control__space');
 const controlLeft = document.querySelector('.control__left');
 const controlRight = document.querySelector('.control__right');
 
-controlLeft?.addEventListener('click', () => {
+controlLeft?.addEventListener('mousedown', () => {
   if (sphereBody && gameState.isStarted) {
     sphereBody.applyImpulse(new CANNON.Vec3(-3, 0, 0), sphereBody.position);
   }
@@ -162,18 +162,7 @@ function animate() {
   strengthMesh.scale.set(0.5, gameState.power * 0.06, 3);
   strengthMesh.material.color.set(new THREE.Color(getColor(gameState.power)));
 
-  if (!gameState.isTouched) {
-    camera.position.x = sphereBody.position.x;
-    camera.position.y = sphereBody.position.y + 0.5;
-    camera.position.z = sphereBody.position.z + 1;
-    camera.lookAt(
-      new THREE.Vector3(
-        sphereBody.position.x,
-        sphereBody.position.y,
-        sphereBody.position.z
-      )
-    );
-  }
+
   if (gameState.isStrike && !winContent?.classList.contains('active')) {
     modal?.classList.add('modal--active');
     winContent?.classList.add('active');
@@ -193,6 +182,7 @@ function animate() {
     object.mesh.quaternion.copy(object.body.quaternion as unknown as THREE.Quaternion)
   }
 
+  followCamera(gameState, camera, sphereBody);
   checkPositions(pinsToUpdate, gameState);
 
   requestAnimationFrame(animate);

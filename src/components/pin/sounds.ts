@@ -4,7 +4,7 @@ interface IContact {
     contact: CANNON.ContactEquation;
 }
 export const playHitSound = ({ contact }: IContact) => {
-    const hitSound = new Audio('/pin/hit.mp3');
+    const hitSound = new Audio('pin/hit.mp3');
 
     const impactStrength = contact.getImpactVelocityAlongNormal();
     if (impactStrength > 1.2) {
